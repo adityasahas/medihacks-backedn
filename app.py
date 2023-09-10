@@ -45,18 +45,18 @@ def generate_schedule():
                 "Nurses available: " + ", ".join([nurse["name"] for nurse in nurses]) + "\n"
             )
             prompt += "\nWhen generating the schedule, make sure the doctors and nurse practitioners have breaks for lunch so they don't get hungry."
-            prompt += "\nGenerate a JSON schedule for the next 5 days (today is september 10th 2023), each appointment should have the Doctor or Nurse Practitioner or Nurse name, the time and date of appointment in the object start_time (office is open 9 am to 5 pm and also randomise the time so it is not in 30 minutes factoring in urgency of the appointment), exam room number, and of course all the patient info, and also a very short doctor's note that the patient should follow before meeting, make it detailed and give unique advice."
-            prompt += "\nFor the time of the appointment, use the preferred time of the patient and if it is not available include a 'change_reason' object to give a SHORT explanation why the preferred time wasn't used, but don't be repetitive for the reason, be very creative with why there was a change in time. ONLY FOR THE DEMO OF THE PRODUCT, make TWO appointments not use the preferred time and give a reason why it wasn't available and it had to be changed in very technical terms, don't give a generic reason; be creative as possible. For the ones that the preferred time is available, make reason Preferred Time Available."
-            prompt += "\nFor the nature of the appointment, use the reason for visit of the patient but shortly summarized, this should be object nature."
+            prompt += "\nGenerate a JSON schedule for the next 5 days (today is september 10th 2023), each appointment should have the Doctor or Nurse Practitioner or Nurse name, the time and date of appointment in the object start_time (format it in %Y-%m-%dT%H:%M) (office is open 9 am to 5 pm and also randomise the time so it is not in 30 minutes factoring in urgency of the appointment), exam room number, and of course all the patient info, and also a very short doctor's note that the patient should follow before meeting, make it detailed and give unique advice."
+            prompt += "\nFor the time of the appointment, use the preferred time of the patient and if it is not available include a 'change_reason' object to give a explanation why the preferred time wasn't used, but don't be repetitive for the reason, be very creative with why there was a change in time. ONLY FOR THE DEMO OF THE PRODUCT, make TWO appointments not use the preferred time and give a reason why it wasn't available and it had to be changed in very technical terms, don't give a generic reason; be creative as possible. For the ones that the preferred time is available, make reason Preferred Time Available."
+            prompt += "\nFor the nature of the appointment, use the reason for visit of the patient but summarized, this should be object nature."
             prompt += "\nFor the object names in the json, use the following: start_time, email, exam_room, provider, patient, urgency, type, nature, change_reason, doctors_note, phoneNumber. INCLUDE ALL OF THEM, even if they are empty, just make sure they are there."
-            prompt += "\nGenerate a JSON output to represent the schedule, only send the FULL json and no text message as this is an api call that parses json only, also make sure you send it all in one message, so if you stop automatically continue the message. DONT STOP BECAUSE OF LENGTH.\n"
+            prompt += "\nGenerate a consistent JSON output to represent the schedule, only send the FULL json and no text message as this is an api call that parses json only, also make sure you send it all in one message, so if you stop automatically continue the message. DONT STOP BECAUSE OF LENGTH.\n"
         
 
         return prompt
 
     appointmentsdata = list(apptcollection.find({}))
 
-    chunk_size = 8
+    chunk_size = 10
     for i in range(0, len(appointmentsdata), chunk_size):
         chunked_data = appointmentsdata[i:i + chunk_size]
         prompt = create_prompt(chunked_data)
@@ -66,7 +66,7 @@ def generate_schedule():
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a helpful assistant that generates medical schedules as a receptionist for a large office.",
+                    "content": "You are a helpful assistant that generates consistent medical schedules as a receptionist for a large office.",
                 },
                 {"role": "user", "content": prompt},
             ],
