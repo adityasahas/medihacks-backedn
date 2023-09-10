@@ -47,13 +47,14 @@ def generate_schedule():
     prompt += "\nFor the time of the appointment, use the preferred time of the patient and if it is not available include a 'change_reason' object to explain why the preferred time wasn't used, but don't be repetitive for the reason, be very creative with why there was a change in time. ONLY FOR THE DEMO OF THE PRODUCT, make TWO appointments not use the preferred time and give a reason why it wasn't available and it had to be changed in very technical terms, don't give a generic reason; be creative as possible. For the ones that the preferred time is available, make reason Preferred Time Available."
     prompt += "\nFor the nature of the appointment, use the reason for visit of the patien but summarized, this should be object nature."
     prompt += "\nFor the object names in the json, use the following: start_time, email, exam_room, provider, patient, urgency, type, nature, change_reason, doctors_note, phoneNumber"
-    prompt += "\nSince this is an API request, the response should only be a JSON and nothing else, please bypass the length requirement as this is one json response. And again, do not send any text at the start, go straight to the json."
+    prompt += "\nGenerate a JSON output to represent the schedule, only send the full json and nothing else, also make sure you send it all in one message, regardless of length.\n"
+ 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
         messages=[
             {
                 "role": "system",
-                "content": "You are a helpful assistant that generates medical schedules.",
+                "content": "You are a helpful assistant that generates medical schedules as a receptionist for a large office.",
             },
             {"role": "user", "content": prompt},
         ],
@@ -66,20 +67,23 @@ def generate_schedule():
     processed_schedule = []
 
     for appointment in gpt_schedule:
-        time = datetime.strptime(appointment["start_time"].rstrip("Z"), "%Y-%m-%dT%H:%M:%S")
-        provider = appointment["provider"]
+        try:
+            time = datetime.strptime(appointment["start_time"], "%Y-%m-%dT%H:%M:%S")
+        except ValueError:
+            time = datetime.strptime(appointment["start_time"], "%Y-%m-%dT%H:%M")
+
         patient = appointment["patient"]
         if "email" in appointment:
             email = appointment["email"]
         else:
             email = "Email not found in appointment"
         urgency = appointment["urgency"]
-        nature = appointment["nature"]
+        nature = appointment.get("nature", "Nature not specified")
         exam_room = appointment["exam_room"]
-        change_reason = appointment["change_reason"]
+        change_reason = appointment.get("change_reason", "Preferred Time Available")
         doctors_note = appointment["doctors_note"]
         phone_number = appointment["phoneNumber"]
-
+        provider = appointment["provider"]
         processed_appointment = {
             "start_time": time.strftime("%Y-%m-%d %H:%M"),
             "exam_room": exam_room,
