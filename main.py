@@ -31,7 +31,7 @@ def generate_schedule():
     prompt = "Given the following medical appointments, sort them into a schedule that prioritizes urgency and aligns with staff specialties for the next week:\n"
     for appt in appointmentsdata:
         prompt += f"Patient: {appt['patientName']}, Phone:{appt['phoneNumber']}, Email: {appt['email']}, Nature: {appt['nature']}, Preferred Time: {appt['preferredTime']}, Reason for Visit: {appt['reason']}\n"
-
+    
     prompt += f"\nNumber of exam rooms: {num_exam_rooms}\n"
     prompt += "Doctors available: " + ", ".join([doc["name"] for doc in doctors]) + "\n"
     prompt += (
